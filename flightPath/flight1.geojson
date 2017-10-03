@@ -1,0 +1,52 @@
+
+var flight1 = [{
+    "type": "LineString",
+    "coordinates": [[1.37063, 43.62048], [1.34668,43.64359], [1.3078,43.64819], [1.27201,43.62775]]
+}];
+
+var transmissions = [{
+    "type": "Feature",
+    "properties": {
+        "name": "Step1",
+        "show_on_map": true,
+        "popupContent": "1st transmission content"
+    },
+    "geometry": {
+        "type": "Point",
+        "coordinates": [1.37063, 43.62048]
+    }
+}, {
+    "type": "Feature",
+    "properties": {
+        "name": "Step2",
+        "show_on_map": true,
+        "popupContent": "2nd transmission content"
+    },
+    "geometry": {
+        "type": "Point",
+        "coordinates": [1.34668,43.64359]
+    }
+}, {
+    "type": "Feature",
+    "properties": {
+        "name": "Step3",
+        "show_on_map": true,
+        "popupContent": "3rd transmission content: This one is made much bigger for test purposes... Check that everything is well displayed or truncated in case the text is very long. <br>000000011111111000000000000000000000000000000000000000000000000000000000000000000011111111111111111111111111111111111111111111<br> 110000000000000000000000000000000000011111111111111111111111111111111111111000000000000000000000000000000000011111111111111111<br>00000001111111111111111111111111111111111111111111111100000000000000000000000000000000000000000000000111111111111111111100000<br>11111111111111111111110000000000000000000000000000000000000000000000000000000000000000000000000000000000011111111111111111111<br>11111111111111111111111111111111111000000000000000000000000000000000000001111111111111111111111111111111111111111111111111111<br>"
+    },
+    "geometry": {
+        "type": "Point",
+        "coordinates": [1.3078,43.64819]
+    }
+}, {
+    "type": "Feature",
+    "properties": {
+        "name": "Step4",
+        "show_on_map": true,
+        "popupContent": "4th transmission content"
+    },
+    "geometry": {
+        "type": "Point",
+        "coordinates": [1.27201,43.62775]
+    }
+}];
+

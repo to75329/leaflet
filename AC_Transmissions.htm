@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html>
+<head>	
+	<title>A/C Transmissions</title>
+
+	<meta charset="utf-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<link rel="shortcut icon" type="image/x-icon" href="docs/images/favicon.ico" />
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.2.0/dist/leaflet.css" integrity="sha512-M2wvCLH6DSRazYeZRIm1JnYyh22purTM+FDB5CsyxtQJYeKq83arPe5wgbNmcFXGqiSH2XR8dT/fJISVA1r/zQ==" crossorigin=""/>
+    <script src="https://unpkg.com/leaflet@1.2.0/dist/leaflet.js" integrity="sha512-lInM/apFSqyy1o6s89K4iQUKg6ppXEgsVxT35HbzUupEVRh2Eu9Wdl4tHj7dZO0s1uvplcYGmt3498TtHq+log==" crossorigin=""></script>
+    <script src="flightPath/flight1.geojson" type="text/javascript"></script> 
+</head>
+<body>
+
+<div id="mapid" style="width: 800px; height: 600px; margin-left: auto; margin-right: auto;"></div>
+<script>
+
+	//ESRI satellite layer
+	var esriLayer = L.tileLayer('http://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}.png', {
+		maxZoom: 20,
+		label: 'Satellite',
+        attribution: 'Tiles &copy; Esri &mdash; Source: Esri, i-cubed, USDA, USGS, ' +
+                     'AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community',
+		id: 'esri.satellite'
+	});
+
+	//GIFT OSM Layer (Airbus hosted).
+	var giftLayer = L.tileLayer('http://tile.xwind-ai.com/wmts/osm/webmercator/{z}/{x}/{y}.png', {
+		maxZoom: 20,
+		label: 'giftLayer',
+        attribution: '© OpenMapTiles © OpenStreetMap contributors.',
+		id: 'esri.satellite'
+	});
+
+	//Style for flight path
+	var flightPathStyle = {
+    "color": "#ff7800",
+    "weight": 8,
+    "opacity": 0.6
+	};
+
+	//Style for transmission marker
+	var transmissionsStyle = {
+    radius: 10,
+    fillColor: "#0078ff",
+    color: "#0078ff",
+    weight: 1,
+    opacity: 1,
+    fillOpacity: 1
+	};
+
+	//Popup displaying each transmission content when marker is clicked
+	function transmissionPopups(feature, layer) {
+	    // does this feature have a property named popupContent?
+	    if (feature.properties && feature.properties.popupContent) {
+	    	var maxStringLength = 125;
+	    	var strContent = feature.properties.popupContent
+
+	    	//In case Transmission content is too large, truncate it
+		  	if (strContent.length > maxStringLength+3) { 
+		    	strContent = strContent.slice(0,maxStringLength)+ ("...");		    	
+	        }
+
+	        layer.bindPopup(strContent);
+	    }
+
+	    //Attach listener to museclick event on the GeoJson layer
+		layer.on({
+                click: transmissionClicked,
+                 });	    
+	}
+
+	//Takes a mous click event to refresh table bottom pane with transmission content
+	function transmissionClicked(e) {
+		//Check that GeoJson feature contains transmission data.
+	    if (e.target.feature.properties && e.target.feature.properties.popupContent) {	              
+	        //At first call, DOM might not be fully built, then its null
+	        if (document.getElementById("transmissionContent")) {
+	        	document.getElementById("transmissionContent").innerHTML = e.target.feature.properties.popupContent;}
+	        //document.getElementById("transmissionContent").innerHTML = "<tr><td>"+e.target.feature.properties.popupContent+"</td></tr>";}
+	    }
+	}
+
+
+	//Drawing of the transmission marker
+	function transmissionMarker(feature, latlng) {
+		return L.circleMarker(latlng, transmissionsStyle);
+	}
+
+	//Overlay layer, aggregates flight1 (flightpath) and transmissions vectors from GeoJson.
+	//Notice: GeoJson coordinates convention is flipped versus Leaflet one (LongLat in GeoJson vs LatLong in Leaflet)
+	var myOverlayLayer = L.geoJSON(flight1,{style:flightPathStyle,onEachFeature: transmissionPopups, pointToLayer:transmissionMarker}).addData(transmissions);
+
+	//Map creation, centered on LFBO
+	var mymap = L.map('mapid', {
+    center: [43.62831, 1.36458],
+    zoom: 13,
+    layers: [esriLayer, giftLayer, myOverlayLayer]
+	});
+
+	//Setting up Layers labels for the layer GUI control
+	var overlayLayers = {
+    "flightPath": myOverlayLayer
+	};
+
+	//Setting up Layers labels for the layer GUI control
+	var baseLayers = {
+    "satellite": esriLayer,
+    "map": giftLayer
+	};
+
+	//Layer GUI control
+	L.control.layers(baseLayers, overlayLayers).addTo(mymap);
+
+	//Fit zoom to map content (vector layer)
+	mymap.fitBounds(myOverlayLayer.getBounds());
+</script>
+<div id="transmitTable" style="width: 800px; height: 800px; margin-left: auto; margin-right: auto;">
+<br>
+	<table style="width:800px margin-left: auto; margin-right: auto;">
+		<thead>
+			<tr>
+			    <th>Transmissions</th>
+			</tr>
+		</thead>
+		<tbody>
+			<tr>
+				<td id="transmissionContent" style="display: inline-block;"></td>
+			</tr>
+		</tbody>
+	</table>
+</div>
+</body>
+</html>
